@@ -2,19 +2,34 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ChatMessage extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'chat_conversation_id',
-        'role',
-        'body',
+        'conversation_id',
+        'sender_type',
+        'sender_id',
+        'message',
+        'attachments',
+        'is_read',
     ];
 
-    public function conversation(): BelongsTo
+    protected $casts = [
+        'attachments' => 'array',
+        'is_read' => 'boolean',
+    ];
+
+    public function conversation()
     {
-        return $this->belongsTo(ChatConversation::class, 'chat_conversation_id');
+        return $this->belongsTo(ChatConversation::class, 'conversation_id');
+    }
+
+    public function sender()
+    {
+        return $this->morphTo();
     }
 }
