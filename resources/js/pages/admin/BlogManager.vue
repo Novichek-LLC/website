@@ -1,0 +1,1 @@
+<template><section class="space-y-6"><SectionHeader title="Блог" text="Управление статьями, SEO и обложками." /><div class="card p-6 text-slate-300">Подключите редактор, загрузку обложек и публикацию через API <code>/admin/api/blog-posts</code>.</div></section></template><script setup>import SectionHeader from "../../components/SectionHeader.vue"</script>

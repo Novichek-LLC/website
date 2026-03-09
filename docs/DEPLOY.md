@@ -1,10 +1,1 @@
-# Deploy
-
-## Nginx
-- корень: `public/`
-- PHP 8.2+
-- websocket-proxy для Reverb на порт `8080`
-
-## Supervisor
-- `php artisan queue:work --tries=1`
-- `php artisan reverb:start --host=0.0.0.0 --port=8080`
+# Deploy\n\n1. composer install\n2. npm install && npm run build\n3. php artisan migrate --seed\n4. php artisan storage:link\n5. php artisan reverb:start\n

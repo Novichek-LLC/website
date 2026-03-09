@@ -1,4 +1,20 @@
 <?php
 namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
-class StoreLeadRequest extends FormRequest { public function authorize(): bool { return true; } public function rules(): array { return ['name' => ['required','string','max:120'],'phone' => ['nullable','string','max:40'],'email' => ['nullable','email','max:120'],'company' => ['nullable','string','max:120'],'service' => ['required','string','max:120'],'message' => ['required','string','max:2000'],'budget' => ['nullable','string','max:120'],'source' => ['nullable','string','max:80'],'utm' => ['nullable','array'],]; } }
+class StoreLeadRequest extends FormRequest
+{
+    public function authorize(): bool { return true; }
+    public function rules(): array
+    {
+        return [
+            'service' => ['required','string','max:255'],
+            'name' => ['required','string','max:255'],
+            'company' => ['nullable','string','max:255'],
+            'email' => ['nullable','email','max:255'],
+            'phone' => ['nullable','string','max:50'],
+            'telegram' => ['nullable','string','max:255'],
+            'message' => ['nullable','string','max:5000'],
+            'budget' => ['nullable','integer','min:0'],
+        ];
+    }
+}

@@ -1,0 +1,1 @@
+<template><section><h1 class="section-title">Политика конфиденциальности</h1><div class="card mt-8 p-6 text-slate-300">Заполните реквизиты, цель обработки данных, перечень сведений и контакты оператора.</div></section></template>

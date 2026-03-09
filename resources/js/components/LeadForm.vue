@@ -1,46 +1,20 @@
 <template>
-  <section id="lead-form" class="container-shell mt-20">
-    <div class="glass overflow-hidden rounded-4xl p-8 md:p-10">
-      <div class="grid gap-10 lg:grid-cols-[1fr,0.9fr]">
-        <div>
-          <div class="text-sm font-semibold uppercase tracking-[0.3em] text-brand-300">Быстрый старт</div>
-          <h3 class="mt-4 text-3xl font-semibold md:text-4xl">Оставьте заявку — предложим архитектуру, сроки и стек</h3>
-          <p class="mt-4 max-w-2xl text-slate-300">
-            Подходит для внедрения 1С, сайтов, автоматизации, маркировки, чат-ботов и спецпроектов.
-          </p>
-        </div>
-
-        <form class="space-y-4" @submit.prevent="submit">
-          <input v-model="form.name" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none" placeholder="Ваше имя" />
-          <input v-model="form.contact" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none" placeholder="Телефон / Telegram / Email" />
-          <input v-model="form.service" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none" placeholder="Интересующая услуга" />
-          <textarea v-model="form.message" rows="4" class="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none" placeholder="Кратко опишите задачу"></textarea>
-          <button class="btn-primary w-full" :disabled="loading">{{ loading ? 'Отправляем...' : 'Получить консультацию' }}</button>
-          <p v-if="success" class="text-sm text-emerald-400">Заявка отправлена. Мы свяжемся с вами.</p>
-        </form>
-      </div>
-    </div>
-  </section>
+  <form @submit.prevent="submit" class="card grid gap-4 p-6">
+    <div class="grid gap-4 md:grid-cols-2"><input v-model="form.name" class="input" placeholder="Ваше имя" /><input v-model="form.phone" class="input" placeholder="Телефон" /></div>
+    <div class="grid gap-4 md:grid-cols-2"><input v-model="form.email" class="input" placeholder="Email" /><select v-model="form.service" class="input"><option value="Сайт">Сайт</option><option value="1С">1С</option><option value="Маркировка">Маркировка</option><option value="Чат-бот">Чат-бот</option></select></div>
+    <textarea v-model="form.message" rows="5" class="input" placeholder="Коротко опишите задачу"></textarea>
+    <div class="flex items-center justify-between gap-3"><div class="text-sm text-slate-400">{{ sent ? 'Заявка отправлена' : 'Ответим в ближайшее время' }}</div><button class="btn-primary" :disabled="loading">{{ loading ? 'Отправка...' : 'Отправить' }}</button></div>
+  </form>
 </template>
-
 <script setup>
-import { reactive, ref } from 'vue';
-import axios from 'axios';
-
-const loading = ref(false);
-const success = ref(false);
-const form = reactive({ name: '', contact: '', service: '', message: '' });
-
-const submit = async () => {
-  loading.value = true;
-  success.value = false;
-
-  try {
-    await axios.post('/api/leads', form);
-    Object.assign(form, { name: '', contact: '', service: '', message: '' });
-    success.value = true;
-  } finally {
-    loading.value = false;
-  }
-};
+import axios from "axios"
+import { reactive, ref } from "vue"
+const loading = ref(false)
+const sent = ref(false)
+const form = reactive({ service: "Сайт", name: "", company: "", email: "", phone: "", telegram: "", message: "" })
+async function submit() {
+  loading.value = true
+  sent.value = false
+  try { await axios.post("/api/leads", form); sent.value = true; form.name=""; form.email=""; form.phone=""; form.message=""; } finally { loading.value = false }
+}
 </script>

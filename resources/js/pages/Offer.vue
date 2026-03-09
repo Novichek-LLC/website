@@ -1,0 +1,1 @@
+<template><section><h1 class="section-title">Публичная оферта</h1><div class="card mt-8 p-6 text-slate-300">Опишите предмет договора, сроки, порядок оплаты, ответственность сторон и порядок расторжения.</div></section></template>

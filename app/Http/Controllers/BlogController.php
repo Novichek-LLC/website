@@ -1,4 +1,9 @@
 <?php
 namespace App\Http\Controllers;
 use App\Models\BlogPost;
-class BlogController extends Controller { public function index() { return response()->json(BlogPost::query()->where('status','published')->orderByDesc('published_at')->get()); } public function show(string $slug) { return response()->json(BlogPost::query()->where('slug',$slug)->where('status','published')->firstOrFail()); } }
+use Illuminate\Http\JsonResponse;
+class BlogController extends Controller
+{
+    public function index(): JsonResponse { return response()->json(BlogPost::query()->where('is_published', true)->latest('published_at')->get()); }
+    public function show(string $slug): JsonResponse { return response()->json(BlogPost::query()->where('slug', $slug)->where('is_published', true)->firstOrFail()); }
+}

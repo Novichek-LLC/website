@@ -1,0 +1,1 @@
+<template><section class="space-y-6"><SectionHeader title="Кейсы" text="Управление кейсами, результатами и публикацией." /><div class="card p-6 text-slate-300">Подключите редактор и загрузку обложек через API <code>/admin/api/cases</code>.</div></section></template><script setup>import SectionHeader from "../../components/SectionHeader.vue"</script>

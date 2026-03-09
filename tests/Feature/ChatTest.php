@@ -1,0 +1,1 @@
+<?php test("chat endpoint placeholder", function () { $this->assertTrue(true); });

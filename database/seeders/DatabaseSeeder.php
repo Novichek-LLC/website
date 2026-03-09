@@ -1,4 +1,10 @@
 <?php
 namespace Database\Seeders;
-use App\Models\BlogPost; use App\Models\CaseStudy; use App\Models\Lead; use App\Models\User; use Illuminate\Database\Seeder; use Illuminate\Support\Facades\Hash;
-class DatabaseSeeder extends Seeder { public function run(): void { User::firstOrCreate(['email' => 'admin@novichek.local'], ['name' => 'Администратор', 'password' => Hash::make('password')]); CaseStudy::firstOrCreate(['slug' => '1c-marking-retail'], ['title' => 'Внедрение 1С и маркировки для розничной сети','client_name' => 'Сеть магазинов одежды','service' => '1С + маркировка','industry' => 'Retail','summary' => 'Подключили 1С, настроили обмен с кассами и контур-маркировкой.','challenge' => 'Ручной учёт, ошибки в кодах маркировки и задержки при отгрузке.','solution' => 'Автоматизировали документооборот, коды, приёмку и инвентаризацию.','result' => 'Сократили время обработки заказов на 42%.','status' => 'published','seo_title' => 'Кейс 1С и маркировка для retail','seo_description' => 'Кейс по внедрению 1С и системы маркировки товаров.',]); BlogPost::firstOrCreate(['slug' => 'kak-podgotovit-biznes-k-markirovke'], ['title' => 'Как подготовить бизнес к маркировке товаров','excerpt' => 'Практический чек-лист по подготовке процессов, 1С и сотрудников.','content' => '<p>Подготовка начинается с аудита номенклатуры, процессов приемки и отгрузки...</p>','status' => 'published','published_at' => now(),'seo_title' => 'Подготовка бизнеса к маркировке','seo_description' => 'Чек-лист по маркировке товаров и внедрению в 1С.',]); } }
+use Illuminate\Database\Seeder;
+class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $this->call([UserSeeder::class, BlogPostSeeder::class, CaseSeeder::class, LeadSeeder::class]);
+    }
+}

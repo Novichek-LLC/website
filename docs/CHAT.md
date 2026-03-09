@@ -1,0 +1,1 @@
+# Chat\n\nПубличный виджет работает через /api/chat и broadcasting.\n
