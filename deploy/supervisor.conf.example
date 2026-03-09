@@ -1,0 +1,15 @@
+[program:novichek-queue]
+command=php /var/www/novichek/artisan queue:work --tries=1
+autostart=true
+autorestart=true
+numprocs=1
+user=www-data
+redirect_stderr=true
+
+[program:novichek-reverb]
+command=php /var/www/novichek/artisan reverb:start --host=0.0.0.0 --port=8080
+autostart=true
+autorestart=true
+numprocs=1
+user=www-data
+redirect_stderr=true

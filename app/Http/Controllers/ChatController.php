@@ -1,72 +1,15 @@
 <?php
-
 namespace App\Http\Controllers;
-
+use App\Events\ChatMessageSent;
+use App\Http\Requests\SendChatMessageRequest;
+use App\Http\Requests\StartChatRequest;
 use App\Models\ChatConversation;
-use App\Models\ChatMessage;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-
-class ChatController extends Controller
-{
-    public function index()
-    {
-        return ChatConversation::with('messages')->latest()->get();
+class ChatController extends Controller {
+    public function start(StartChatRequest $request) {
+        $conversation = ChatConversation::create(['visitor_name' => $request->string('name')->toString(),'visitor_email' => $request->string('email')->toString(),'visitor_phone' => $request->string('phone')->toString(),'status' => 'open','source_url' => $request->string('source_url')->toString(),'meta' => ['ip' => $request->ip(),'user_agent' => $request->userAgent(),],]);
+        if ($request->filled('message')) { $message = $conversation->messages()->create(['sender_type' => 'visitor','message' => $request->string('message')->toString(),'attachments' => [],'is_read' => false,]); broadcast(new ChatMessageSent($conversation, $message))->toOthers(); }
+        return response()->json($conversation->load('messages'), 201);
     }
-
-    public function start(Request $request)
-    {
-        $conversation = ChatConversation::create([
-            'token' => Str::uuid(),
-            'client_name' => $request->string('name'),
-            'client_contact' => $request->string('contact'),
-            'status' => 'new',
-        ]);
-
-        ChatMessage::create([
-            'chat_conversation_id' => $conversation->id,
-            'role' => 'client',
-            'body' => $request->string('body'),
-        ]);
-
-        return response()->json($conversation->load('messages'));
-    }
-
-    public function show(string $token)
-    {
-        return ChatConversation::where('token', $token)->with('messages')->firstOrFail();
-    }
-
-    public function message(Request $request, string $token)
-    {
-        $conversation = ChatConversation::where('token', $token)->firstOrFail();
-
-        ChatMessage::create([
-            'chat_conversation_id' => $conversation->id,
-            'role' => 'client',
-            'body' => $request->string('body'),
-        ]);
-
-        return $conversation->fresh('messages');
-    }
-
-    public function reply(Request $request, ChatConversation $conversation)
-    {
-        ChatMessage::create([
-            'chat_conversation_id' => $conversation->id,
-            'role' => 'admin',
-            'body' => $request->string('body'),
-        ]);
-
-        return $conversation->fresh('messages');
-    }
-
-    public function status(Request $request, ChatConversation $conversation)
-    {
-        $conversation->update([
-            'status' => $request->string('status', 'active'),
-        ]);
-
-        return $conversation->fresh('messages');
-    }
+    public function show(ChatConversation $conversation) { return response()->json($conversation->load('messages')); }
+    public function sendMessage(SendChatMessageRequest $request, ChatConversation $conversation) { $message = $conversation->messages()->create(['sender_type' => 'visitor','message' => $request->string('message')->toString(),'attachments' => [],'is_read' => false,]); broadcast(new ChatMessageSent($conversation, $message))->toOthers(); return response()->json($message, 201); }
 }
