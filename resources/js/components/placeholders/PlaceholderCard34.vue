@@ -1,0 +1,1 @@
+<template><div class="card p-4">Placeholder component 34</div></template>
