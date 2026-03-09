@@ -1,1 +1,0 @@
-FROM php:8.2-fpm\nRUN docker-php-ext-install pdo pdo_mysql\nWORKDIR /var/www\n

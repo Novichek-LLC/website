@@ -1,1 +1,0 @@
-<?php test("blog endpoint placeholder", function () { $this->assertTrue(true); });

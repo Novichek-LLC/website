@@ -1,1 +1,0 @@
-# Deploy\n\n1. composer install\n2. npm install && npm run build\n3. php artisan migrate --seed\n4. php artisan storage:link\n5. php artisan reverb:start\n

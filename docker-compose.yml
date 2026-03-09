@@ -1,1 +1,0 @@
-version: "3.8"\nservices:\n  app:\n    build: ./docker/php\n    volumes: ["./:/var/www"]\n  nginx:\n    image: nginx:alpine\n    ports: ["8081:80"]\n    volumes: ["./:/var/www","./docker/nginx.conf:/etc/nginx/conf.d/default.conf"]\n

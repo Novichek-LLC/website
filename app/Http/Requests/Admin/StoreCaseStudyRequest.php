@@ -1,4 +1,0 @@
-<?php
-namespace App\Http\Requests\Admin;
-use Illuminate\Foundation\Http\FormRequest; use Illuminate\Validation\Rule;
-class StoreCaseStudyRequest extends FormRequest { public function authorize(): bool { return true; } public function rules(): array { return ['title' => ['required','string','max:180'],'slug' => ['required','string','max:180'],'client_name' => ['nullable','string','max:180'],'service' => ['required','string','max:120'],'industry' => ['nullable','string','max:120'],'summary' => ['required','string'],'challenge' => ['nullable','string'],'solution' => ['nullable','string'],'result' => ['nullable','string'],'status' => ['required', Rule::in(['draft','published'])],'cover' => ['nullable','image','max:4096'],'gallery' => ['nullable','array'],'seo_title' => ['nullable','string','max:180'],'seo_description' => ['nullable','string','max:255'],]; } }

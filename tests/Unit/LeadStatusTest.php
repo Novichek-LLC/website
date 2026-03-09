@@ -1,1 +1,0 @@
-<?php test("enum placeholder", function () { $this->assertTrue(true); });

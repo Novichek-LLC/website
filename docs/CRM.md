@@ -1,1 +1,0 @@
-# CRM\n\nСтатусы: new, in_progress, qualified, proposal, won, lost.\n

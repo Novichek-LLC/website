@@ -1,1 +1,0 @@
-# Notifications\n\nНастройте SMTP и Telegram bot token/chat id в .env.\n

@@ -1,1 +1,0 @@
-# SEO\n\nЗаполните seo_title, seo_description, seo_keywords для кейсов и статей.\n
