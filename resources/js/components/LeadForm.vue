@@ -17,6 +17,8 @@
         <option value="marking">Маркировка</option>
         <option value="sites">Создание сайтов</option>
         <option value="bots">Чат-боты</option>
+        <option value="automation">Автоматизация</option>
+        <option value="support">Сопровождение</option>
         <option value="vpn">VPN</option>
         <option value="music">Музыкальная дистрибуция</option>
         <option value="design">Дизайн</option>
@@ -44,7 +46,18 @@
 
 <script setup>
 import axios from 'axios'
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
+
+const props = defineProps({
+  initialService: {
+    type: String,
+    default: '',
+  },
+  initialMessage: {
+    type: String,
+    default: '',
+  },
+})
 
 const loading = ref(false)
 const success = ref(false)
@@ -54,8 +67,16 @@ const form = reactive({
   phone: '',
   email: '',
   company: '',
-  service: '',
-  message: '',
+  service: props.initialService,
+  message: props.initialMessage,
+})
+
+watch(() => props.initialService, (value) => {
+  if (value) form.service = value
+})
+
+watch(() => props.initialMessage, (value) => {
+  if (value) form.message = value
 })
 
 async function submit() {
@@ -70,7 +91,7 @@ async function submit() {
     form.phone = ''
     form.email = ''
     form.company = ''
-    form.service = ''
+    form.service = props.initialService || ''
     form.message = ''
   } finally {
     loading.value = false

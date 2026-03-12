@@ -35,6 +35,7 @@
             <router-link to="/cases" class="block hover:text-white">Кейсы</router-link>
             <router-link to="/blog" class="block hover:text-white">Блог</router-link>
             <router-link to="/contacts" class="block hover:text-white">Контакты</router-link>
+            <router-link to="/faq" class="block hover:text-white">FAQ</router-link>
           </div>
         </div>
 
