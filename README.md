@@ -1,59 +1,81 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Сайт для ООО «НОВИЧЁК»
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Корпоративный сайт и лид-ген платформа на Laravel + Vue для презентации услуг ООО «НОВИЧЁК», сбора заявок, публикации кейсов/блога и работы с обращениями через чат.
 
-## About Laravel
+## Прописанный функционал проекта
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 1) Публичная часть сайта
+- Главная страница с оффером и быстрым входом в лид-форму.
+- Раздел услуг с отдельными страницами по направлениям (1С, маркировка, музыка, пескоструй, VPN, дизайн, сайты, боты, автоматизация, игровые серверы).
+- Раздел «Кейсы» со списком и карточкой кейса по slug.
+- Раздел «Блог» со списком и карточкой статьи по slug.
+- Страницы «О компании», «Контакты», «Цены», «Политика конфиденциальности», «Оферта».
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 2) Лидогенерация (заявки)
+- Форма захвата лида на сайте.
+- Валидация полей запроса на backend.
+- Сохранение лида в БД со статусом `new`, источником `site` и техническими метаданными (ip, user-agent, referer).
+- Уведомление администраторов о новой заявке.
+- Отправка уведомления в Telegram о новой заявке.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 3) Онлайн-чат с посетителем
+- Старт нового диалога из виджета с данными посетителя.
+- Отправка гостевых сообщений в существующий диалог.
+- Получение истории сообщений для диалога.
+- Обновление времени последней активности диалога.
+- Broadcast события нового сообщения для real-time сценариев.
 
-## Learning Laravel
+### 4) Контент-модуль
+- Хранение и публикация статей блога.
+- Хранение и публикация кейсов.
+- Публичный API отдает только опубликованные материалы.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 5) Админ-направление
+- SPA-маршруты под `/admin/*` (панель, лиды, чат, блог, кейсы).
+- Подключена Nova-модель ресурсов для управления сущностями.
+- Подготовлены маршруты admin API (требуют авторизации и верификации).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## API (основные endpoint'ы)
 
-## Laravel Sponsors
+### Публичные
+- `GET /api/blog` — список опубликованных постов.
+- `GET /api/blog/{slug}` — детальная страница поста.
+- `GET /api/cases` — список опубликованных кейсов.
+- `GET /api/cases/{slug}` — детальная страница кейса.
+- `POST /api/leads` — создание заявки.
+- `POST /api/chat/conversations` — старт диалога в чате.
+- `GET /api/chat/conversations/{uuid}/messages` — список сообщений.
+- `POST /api/chat/conversations/{uuid}/messages` — отправка сообщения гостем.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Админские
+- `GET /admin/api/leads`, `PATCH /admin/api/leads/{lead}`, `POST /admin/api/leads/{lead}/comment`.
+- `GET /admin/api/chat/conversations`, `GET /admin/api/chat/conversations/{conversation}/messages`, `POST /admin/api/chat/conversations/{conversation}/messages`, `PATCH /admin/api/chat/conversations/{conversation}`.
+- CRUD для `/admin/api/blog-posts` и `/admin/api/cases` + загрузка обложек.
 
-### Premium Partners
+## Технологии
+- Backend: Laravel.
+- Frontend: Vue 3 + Vue Router + Tailwind CSS.
+- Админка: Laravel Nova.
+- Уведомления: Laravel Notifications + Telegram интеграция.
+- Real-time: broadcasting событий чата.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Ближайшее усиление функционала (рекомендуется)
+1. Реализовать/подключить отсутствующие admin API контроллеры для маршрутов `/admin/api/*`.
+2. Добавить SLA-воронку для лидов (new → in_progress → won/lost) с историей смены статусов.
+3. Добавить защиту чата и лид-формы (rate-limit, honeypot/reCAPTCHA).
+4. Добавить E2E и feature-тесты на критические пути: заявка, чат, блог/кейсы.
+5. Настроить централизованную аналитику конверсий (UTM, goals, отчёты по источникам).
 
-## Contributing
+## Запуск локально
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+npm install
+npm run dev
+php artisan serve
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Назначение
+Проект ориентирован на B2B-поток заявок: быстро показать компетенции ООО «НОВИЧЁК», конвертировать трафик в лиды и поддерживать коммуникацию с клиентом через чат и админ-панель.
