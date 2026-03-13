@@ -12,7 +12,7 @@
             </div>
             <div>
               <div class="text-sm font-semibold text-white">Поддержка NOVICHEK</div>
-              <div class="text-xs text-emerald-300">Оператор онлайн</div>
+              <div class="text-xs text-emerald-300">Онлайн-чат</div>
             </div>
           </div>
 
@@ -23,14 +23,8 @@
           <div class="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <div class="text-sm font-medium text-white">Здравствуйте 👋</div>
             <div class="mt-2 text-sm leading-6 text-slate-400">
-              Напишите нам, и мы поможем с 1С, маркировкой, сайтом, чат-ботами или автоматизацией.
+              Напишите нам, и мы поможем с 1С, маркировкой, сайтом, ботами, игровыми серверами или автоматизацией.
             </div>
-          </div>
-
-          <div class="mt-4 space-y-3">
-            <button class="quick-btn" @click="quickMessage('Нужна консультация по 1С')">Консультация по 1С</button>
-            <button class="quick-btn" @click="quickMessage('Нужен сайт для компании')">Разработка сайта</button>
-            <button class="quick-btn" @click="quickMessage('Нужна настройка маркировки товаров')">Маркировка товаров</button>
           </div>
         </div>
 
@@ -60,9 +54,13 @@
               placeholder="Напишите сообщение..."
               @keyup.enter="send"
             />
-            <button class="btn-nav-primary min-w-[52px] px-0" @click="send" :disabled="sending">
+            <button class="btn-primary min-w-[52px] px-0" @click="send" :disabled="sending">
               →
             </button>
+          </div>
+
+          <div v-if="errorText" class="mt-2 text-xs text-rose-300">
+            {{ errorText }}
           </div>
         </div>
       </div>
@@ -91,6 +89,7 @@ const open = ref(false)
 const started = ref(false)
 const sending = ref(false)
 const message = ref('')
+const errorText = ref('')
 const messages = ref([])
 const unreadCount = ref(0)
 const conversationUuid = ref(localStorage.getItem('chat_conversation_uuid') || '')
@@ -103,6 +102,20 @@ const visitor = ref({
   email: localStorage.getItem('chat_visitor_email') || '',
 })
 
+function normalizePayload() {
+  const payload = {
+    message: message.value.trim(),
+  }
+
+  const name = visitor.value.name?.trim()
+  const email = visitor.value.email?.trim()
+
+  if (name) payload.visitor_name = name
+  if (email) payload.visitor_email = email
+
+  return payload
+}
+
 function toggleOpen() {
   open.value = !open.value
   if (open.value) {
@@ -112,33 +125,33 @@ function toggleOpen() {
   }
 }
 
-function quickMessage(text) {
-  message.value = text
-}
-
 async function send() {
-  if (!message.value.trim()) return
+  errorText.value = ''
+
+  const payload = normalizePayload()
+
+  if (!payload.message) {
+    errorText.value = 'Введите сообщение'
+    return
+  }
+
   sending.value = true
 
   try {
     if (!conversationUuid.value) {
-      const res = await axios.post('/api/chat/conversations', {
-        visitor_name: visitor.value.name,
-        visitor_email: visitor.value.email,
-        message: message.value,
-      })
+      const res = await axios.post('/api/chat/conversations', payload)
 
       started.value = true
       conversationUuid.value = res.data.conversation.uuid
       localStorage.setItem('chat_conversation_uuid', conversationUuid.value)
-      localStorage.setItem('chat_visitor_name', visitor.value.name || '')
-      localStorage.setItem('chat_visitor_email', visitor.value.email || '')
+      localStorage.setItem('chat_visitor_name', payload.visitor_name || '')
+      localStorage.setItem('chat_visitor_email', payload.visitor_email || '')
 
       messages.value = [res.data.message]
       rememberLastMessage()
     } else {
       const res = await axios.post(`/api/chat/conversations/${conversationUuid.value}/messages`, {
-        message: message.value,
+        message: payload.message,
       })
 
       started.value = true
@@ -148,6 +161,16 @@ async function send() {
 
     message.value = ''
     scrollToBottom()
+  } catch (e) {
+    if (e.response?.status === 422) {
+      const errors = e.response?.data?.errors || {}
+      const firstError = Object.values(errors)?.flat?.()[0]
+      errorText.value = firstError || 'Проверьте корректность введённых данных'
+    } else {
+      errorText.value = 'Не удалось отправить сообщение'
+    }
+
+    console.error(e)
   } finally {
     sending.value = false
   }
@@ -161,13 +184,12 @@ async function fetchMessages() {
   messages.value = res.data
   rememberLastMessage()
 
-  const newestId = messages.value.length ? messages.value[messages.value.length - 1].id : 0
+  const newAdminMessages = messages.value.filter(
+    m => m.sender_type !== 'guest' && m.id > oldLastId
+  )
 
-  if (!open.value && newestId > oldLastId) {
-    unreadCount.value += messages.value.filter(
-      m => m.sender_type !== 'guest' && m.id > oldLastId
-    ).length
-
+  if (!open.value && newAdminMessages.length > 0) {
+    unreadCount.value += newAdminMessages.length
     localStorage.setItem('chat_unread_count', String(unreadCount.value))
   }
 
@@ -203,7 +225,7 @@ onBeforeUnmount(() => {
   if (intervalId) clearInterval(intervalId)
 })
 
-watch(open, async (value) => {
+watch(open, async value => {
   if (value) {
     unreadCount.value = 0
     localStorage.setItem('chat_unread_count', '0')

@@ -12,4 +12,9 @@ abstract class Resource extends NovaResource
     {
         return __(parent::label());
     }
+
+    public static function authorizable(): bool
+    {
+        return false;
+    }
 }

@@ -45,7 +45,7 @@
               <div class="overflow-hidden rounded-[22px] border border-white/10 bg-[#0d1730]/80">
                 <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
                   <div>
-                    <div class="text-xs uppercase tracking-[0.18em] text-slate-500">NOVICHEK SYSTEM</div>
+                    <div class="text-xs uppercase tracking-[0.18em] text-slate-500">Системы НОВИЧЁК</div>
                     <div class="mt-1 text-base font-semibold text-white">Как выглядит работа с нами</div>
                   </div>
                   <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300">
