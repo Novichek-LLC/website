@@ -1,36 +1,34 @@
-//CONFIG
-var port = 3000;
+// CONFIG
+const port = 3000;
 
-//Initialization modules
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http, {
+// Initialization modules
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http, {
     path: '/nodejs'
 });
-var jwt = require('socketio-jwt');
-var dotenv = require('dotenv').config({path: '.env'});
-var axios = require('axios');
-var { DateTime } = require('luxon');
-var Datastore = require('nedb');
+const jwt = require('socketio-jwt');
+require('dotenv').config({path: '.env'});
+const axios = require('axios');
+const { DateTime } = require('luxon');
+const Datastore = require('nedb');
 
-//Chat history
-var db_history = new Datastore({filename : 'chat_history', autoload: true});
+// Chat history
+const db_history = new Datastore({filename : 'chat_history', autoload: true});
 
-var online_users = [];
-var banned_users = [];
+let online_users = [];
+let banned_users = [];
 
 //FORUM CHAT
-var fchat_last = [];
-var fchat_rps = [];
-
-var lastForumPostTime = 0;
+let fchat_last = [];
+const fchat_rps = [];
 
 http.listen(port, function(){
     console.log('listening on *:' + port);
 });
 
-var mysql      = require('mysql');
-var pool = mysql.createPool({
+const mysql = require('mysql');
+const pool = mysql.createPool({
     connectionLimit : 10,
     host     : process.env.DB_HOST,
     user     : process.env.DB_USERNAME,
@@ -62,16 +60,23 @@ function checkBan(id){
     return banned_users.find(ban => ban.bannable_id === id);
 }
 
+function isRateLimited(key, timeoutMs = 2000) {
+    const now = Date.now();
+    if (fchat_rps[key] && (now - fchat_rps[key]) < timeoutMs) {
+        return true;
+    }
+
+    fchat_rps[key] = now;
+    return false;
+}
+
 io.on('connection', function (socket) {
     socket.emit('forum.online', online_users);
 
     socket.on('forum.chat.load', function(){
-        if (fchat_rps[socket.conn.id]){
-            if ((Date.now() - fchat_rps[socket.conn.id]) < 2000){
-                return;
-            }
+        if (isRateLimited(socket.conn.id)) {
+            return;
         }
-        fchat_rps[socket.conn.id] = Date.now();
 
         socket.emit('forum.chat.load', fchat_last);
     });
@@ -79,11 +84,11 @@ io.on('connection', function (socket) {
     secret: process.env.JWT_SECRET,
     timeout: 15000
 })).on('authenticated', function(socket) {
-    var user = socket.decoded_token;
+    const user = socket.decoded_token;
     user.socket = socket.conn.id;
     user.time = getDateTime().toLocaleString(DateTime.TIME_24_WITH_SECONDS);
 
-    if (user.role.toLowerCase().indexOf('игрок') > 0){
+    if (typeof user.role === 'string' && user.role.toLowerCase().includes('игрок')){
         user.role = '';
     }
 
@@ -101,12 +106,9 @@ io.on('connection', function (socket) {
     });
 
     socket.on('forum.posts.new', function(){
-        if (fchat_rps[user.id]){
-            if ((Date.now() - fchat_rps[user.id]) < 2000 && !user.moder){
-                return;
-            }
+        if (!user.moder && isRateLimited(user.id)) {
+            return;
         }
-        fchat_rps[user.id] = Date.now();
 
         socket.emit('forum.posts.new');
     });
@@ -122,19 +124,23 @@ io.on('connection', function (socket) {
     });
 
     socket.on('forum.chat.msg', function(text){
-        var unix = Math.round(+new Date()/1000);
+        if (typeof text !== 'string') {
+            socket.emit('message', {type: 'error', title: 'Ошибка', msg: 'Некорректный формат сообщения!'});
+            return;
+        }
+
+        const unix = Math.round(+new Date()/1000);
         if (user.reg_time > (unix - 43200)){
             socket.emit('message', {type: 'error', title: 'Ошибка', msg: 'Мы можете пользоваться чатом только спустя 12 часов после регистрации!'});
             return;
         }
 
-        if (fchat_rps[user.id]){
-            if ((Date.now() - fchat_rps[user.id]) < 2000 && !user.moder){
-                socket.emit('message', {type: 'warn', title: 'Упс!', msg: 'Не так быстро! Попробуйте через 3 секунды!'});
-                return;
-            }
+        if (!user.moder && isRateLimited(user.id)) {
+            socket.emit('message', {type: 'warn', title: 'Упс!', msg: 'Не так быстро! Попробуйте через 3 секунды!'});
+            return;
         }
-        fchat_rps[user.id] = Date.now();
+
+        text = text.trim();
 
         if (text.length > 500 && !user.moder){
             socket.emit('message', {type: 'error', title: 'Ошибка', msg: 'Не более 500 символов в одном сообщении!'});
@@ -151,8 +157,7 @@ io.on('connection', function (socket) {
         axios.post(process.env.APP_URL + '/api/text/filter', new URLSearchParams({ t: text }).toString(), {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(function (response) {
-            text = text.trim();
-            var message = {
+            const message = {
                 user: {login: user.login, uuid: user.uuid, moder: user.moder, role: user.role},
                 text: response.data.filtered,
                 time: getDateTime().toLocaleString(DateTime.TIME_24_WITH_SECONDS)
