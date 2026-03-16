@@ -1,1 +1,0 @@
-<template><section class="card p-6">Landing block 25</section></template>
